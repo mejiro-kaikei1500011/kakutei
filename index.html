@@ -128,6 +128,9 @@
       <div class="code" id="ans"></div>
       <div class="note">メールの場合は件名に、郵送の場合は資料の表紙か同封する紙に、このコードを書いてください。</div>
       <button onclick="mail()">メールを作成（mejiro.accounting@focas.work）</button>
+      <button class="sub" onclick="lineShare()">LINEで送る</button>
+      <button class="sub" onclick="copyMail()">メールが開かない場合：宛先と本文をコピー</button>
+      <div class="note">LINEで送る場合は、送り先を選んでください。資料の写真やPDFは、LINEで別に送ってください。</div>
       <div class="note" style="margin-top:8px">個人番号（マイナンバー）は送らないでください。</div>
     </div>
     <button class="sub" onclick="show('s4')">戻る</button>
@@ -349,10 +352,11 @@ function answersText(){
   return out;
 }
 
-function mail(){
+// メールの件名と本文（そのままの文字）を作る
+function mailParts(){
   const cname = document.getElementById("cname").value.trim();
   const memo = document.getElementById("memo").value.trim();
-  const subject = encodeURIComponent("確定申告ヒアリング回答 " + cust + (cname ? " " + cname : "") + " " + codeFor());
+  const subjectText = "確定申告ヒアリング回答 " + cust + (cname ? " " + cname : "") + " " + codeFor();
   const lines = [
     "顧客コード：" + cust,
     ...(cname ? ["お名前（会社名）：" + cname] : []),
@@ -367,8 +371,36 @@ function mail(){
     "資料を添付します（写真・PDF）。",
   ];
   if(memo) lines.push("", "【回答にない項目・不明点・ご質問】", memo);
-  const body = encodeURIComponent(lines.join("\n"));
-  location.href = `mailto:mejiro.accounting@focas.work?subject=${subject}&body=${body}`;
+  return { subjectText, bodyText: lines.join("\n") };
+}
+
+// スマホは標準のメールアプリ、パソコンはGmailの作成画面を開く
+function mail(){
+  const { subjectText, bodyText } = mailParts();
+  const subject = encodeURIComponent(subjectText);
+  const body = encodeURIComponent(bodyText);
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if(isMobile){
+    location.href = `mailto:mejiro.accounting@focas.work?subject=${subject}&body=${body}`;
+  } else {
+    window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=mejiro.accounting@focas.work&su=${subject}&body=${body}`, "_blank");
+  }
+}
+
+// メールが開かない場合の予備：宛先・件名・本文をコピーする
+// LINEで送る：LINEの共有画面を開き、送り先を選んでもらう
+function lineShare(){
+  const { subjectText, bodyText } = mailParts();
+  const text = subjectText + "\n\n" + bodyText;
+  window.open("https://line.me/R/share?text=" + encodeURIComponent(text), "_blank");
+}
+
+function copyMail(){
+  const { subjectText, bodyText } = mailParts();
+  const text = "宛先：mejiro.accounting@focas.work\n件名：" + subjectText + "\n\n" + bodyText;
+  navigator.clipboard.writeText(text)
+    .then(() => alert("コピーしました。メールアプリに貼り付けて送ってください。"))
+    .catch(() => alert("コピーできませんでした。宛先 mejiro.accounting@focas.work に、回答コードと資料を送ってください。"));
 }
 </script>
 </body>
