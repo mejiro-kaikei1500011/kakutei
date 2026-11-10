@@ -14,7 +14,7 @@
   .note { font-size:12px; color:#666; }
   .banner { background:#fff7e0; border:1px solid #e8c96a; border-radius:8px; padding:8px 10px; font-size:13px; }
   label.opt { display:inline-block; margin-right:14px; font-size:14px; padding:4px 0; }
-  input[type=text], input[type=number], select { width:100%; box-sizing:border-box; padding:8px; font-size:15px; border:1px solid #bbb; border-radius:6px; margin-top:4px; }
+  input[type=text], input[type=number], select, textarea { width:100%; box-sizing:border-box; padding:8px; font-size:15px; border:1px solid #bbb; border-radius:6px; margin-top:4px; }
   .hidden { display:none; }
   button { width:100%; padding:12px; font-size:16px; border:0; border-radius:8px; background:#3a6; color:#fff; margin-top:8px; }
   button.sub { background:#888; }
@@ -30,7 +30,7 @@
   <div class="note" id="custLine"></div>
   <div class="banner" style="margin-top:8px">
     回答期限：<b>1月末</b>（医療費以外の資料）／<b>2月中旬</b>（医療費通知を含む資料）。<br>
-    回答はこの画面に入力したら、最後に表示される回答コードを控え、資料の写真と一緒にメールしてください。
+    回答はこの画面に入力したら、最後に表示される回答コードを控え、資料をメールまたは郵送で送ってください。
   </div>
 
   <!-- STEP 1 -->
@@ -97,11 +97,14 @@
       <select id="contact"><option>メール</option><option>電話</option><option>LINE</option></select>
       <div class="q">連絡先の電話番号</div>
       <input type="text" id="tel" placeholder="例 090-0000-0000">
+      <div class="q">不明点・ご質問（あれば）</div>
+      <textarea id="memo" rows="4" placeholder="わからないことがあればご記入ください。"></textarea>
+      <div class="note">不明点があればご連絡ください。</div>
     </div>
     <h2>回答コード</h2>
     <div class="card">
       <div class="code" id="ans"></div>
-      <div class="note">このコードをメールの件名に入れてください。</div>
+      <div class="note">メールの場合は件名に、郵送の場合は資料の表紙か同封する紙に、このコードを書いてください。</div>
       <button onclick="mail()">メールを作成（mejiro.accounting@focas.work）</button>
       <div class="note" style="margin-top:8px">個人番号（マイナンバー）は送らないでください。</div>
     </div>
@@ -139,11 +142,12 @@ document.getElementById("inc").innerHTML =
   row("生命保険の満期金・一時金（小規模企業共済を含む）", "lumpsum") +
   row("退職金", "retire") +
   row("外貨預金・FXの為替差益や損益", "fx") +
-  row("個人年金保険や確定拠出年金の受取り", "annuity");
+  row("個人年金保険や確定拠出年金の受取り", "annuity") +
+  row("贈与を受けましたか（現金・不動産・住宅取得等資金など）", "gift");
 
 document.getElementById("ded").innerHTML =
   `<div class="q">医療費を支払いましたか（支払いの有無のみ）</div>${YN("med")}
-   <div class="note">支払いがあった場合は、医療費の領収書・医療費通知の写真又は郵送をお願いします。金額は事務所で確認します。</div>` +
+   <div class="note">支払いがあった場合は、医療費の領収書・医療費通知を、写真又は郵送で送ってください。金額は事務所で確認します。</div>` +
   row("ふるさと納税をしましたか", "furusato") +
   `<div class="q">ふるさと納税のワンストップ特例は使いましたか</div>${YN("onestop")}
    <div class="note">ワンストップ特例を使っていても、確定申告をする場合は特例が無効になり、ふるさと納税分も含めて全件を申告する必要があります。</div>` +
@@ -177,7 +181,8 @@ document.getElementById("biz").innerHTML =
   row("従業員への給与・外注費の支払いがありますか（源泉徴収の要否）", "payroll") +
   row("金融機関から事業用の借入をしていますか", "bizloan") +
   row("事業用の車両（自動車）を購入しましたか", "carbuy") +
-  row("事業用の車両をリース（またはカーリース）していますか", "carlease");
+  row("事業用の車両をリース（またはカーリース）していますか", "carlease") +
+  row("適格請求書発行事業者（インボイス登録）をしていますか", "invoice");
 
 // ---- 回答の集計 ----
 function getVal(name){ const el=document.querySelector(`input[name="${name}"]:checked`); return el?el.value:"無"; }
@@ -214,6 +219,7 @@ function docsFor(){
   if(getVal("retire")==="有") d.push("退職金の源泉徴収票（退職時・勤務先）");
   if(getVal("fx")==="有") d.push("外貨預金・FXの年間取引報告書・取引明細（為替差益・損益がわかるもの）");
   if(getVal("annuity")==="有") d.push("個人年金保険の支払通知書・確定拠出年金の受取りの通知書（1月中・保険会社など）");
+  if(getVal("gift")==="有") d.push("贈与の資料（贈与契約書・振込明細・不動産の登記事項証明書など。住宅取得等資金の贈与は契約書類なども）");
   if(getVal("lumpsum")==="有") d.push("満期返戻金・一時金の支払通知（支払時・保険会社）");
   if(getVal("realestatesale")==="有") d.push("売買契約書・登記事項証明書（引渡し時）");
   if(getVal("med")==="有") d.push("医療費通知（医療費のお知らせ・1〜2月）と領収書（写真又は郵送）");
@@ -235,6 +241,7 @@ function docsFor(){
     if(getVal("carlease")==="有") d.push("カーリースの契約書・年間のリース料の明細（支払額がわかるもの）");
     if(getVal("bizsale")==="有") d.push("売却した資産の売買契約書・売却代金の入金明細、取得時の購入資料（減価償却の計算用）");
     if(getVal("kyosai")==="有") d.push("倒産防止共済の掛金払込証明書（掛金の額）、解約した場合は解約返戻金の通知（共済団体）");
+    if(getVal("invoice")==="有") d.push("適格請求書発行事業者の登録通知書の写し（登録番号がわかるもの）");
   }
   if(getVal("startstop")==="有") d.push("開業届・廃業届の控え（提出している場合）");
   if(getVal("disab")==="有") d.push("障害者手帳の写し、または寡婦・ひとり親であることがわかる資料（該当する場合）");
@@ -256,6 +263,7 @@ function collect(){
   o.newaddr=document.getElementById("newaddr").value;
   o.contact=document.getElementById("contact").value;
   o.tel=document.getElementById("tel").value;
+  o.memo=document.getElementById("memo").value;
   return o;
 }
 
@@ -266,7 +274,8 @@ function make(){
 
 function mail(){
   const subject = encodeURIComponent("確定申告ヒアリング回答 " + cust + " " + codeFor());
-  const body = encodeURIComponent("回答コード：" + codeFor() + "\n\n資料の写真を添付します。\n");
+  const memo = document.getElementById("memo").value.trim();
+  const body = encodeURIComponent("回答コード：" + codeFor() + "\n\n資料を添付します（写真・PDF）。\n" + (memo ? "\n【不明点・ご質問】\n" + memo + "\n" : ""));
   location.href = `mailto:mejiro.accounting@focas.work?subject=${subject}&body=${body}`;
 }
 </script>
