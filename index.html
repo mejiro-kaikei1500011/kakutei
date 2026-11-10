@@ -93,6 +93,7 @@ const row = (q, name) => `<div class="q">${q}</div>${YN(name)}`;
 
 document.getElementById("chg").innerHTML =
   row("住所が変わりましたか（前年から）", "moved") +
+  `<div class="q">新しい住所（変わった場合・引越し日も）</div><input type="text" id="newaddr" placeholder="例 東京都渋谷区○○1-2-3 ／ 2026年○月○日">` +
   row("家族（結婚・出産・同居・別居など）に変化がありましたか", "family") +
   row("勤務先が変わりましたか", "job") +
   row("開業・廃業しましたか", "startstop");
@@ -109,7 +110,9 @@ document.getElementById("inc").innerHTML =
   row("給与以外の副業・ネット販売・講師料などの収入", "side") +
   row("土地・建物の売却", "realestatesale") +
   row("生命保険の満期金・一時金（小規模企業共済を含む）", "lumpsum") +
-  row("退職金", "retire");
+  row("退職金", "retire") +
+  row("外貨預金・FXの為替差益や損益", "fx") +
+  row("個人年金保険や確定拠出年金の受取り", "annuity");
 
 document.getElementById("ded").innerHTML =
   `<div class="q">医療費を支払いましたか（支払いの有無のみ）</div>${YN("med")}
@@ -140,7 +143,11 @@ document.getElementById("biz").innerHTML =
    <input type="number" id="sales" placeholder="例 12000000">
    <div class="note">1,000万円を超えると消費税の申告が必要になる場合があります。</div>
    <div class="q">家族に給与を払っていますか（専従者）</div>${YN("family_pay")}
-   <div class="q">自宅を事業にも使っていますか（家事按分）</div>${YN("kanbun")}`;
+   <div class="q">自宅を事業にも使っていますか（家事按分）</div>${YN("kanbun")}` +
+  row("倒産防止共済（経営セーフティ共済）に加入していますか（今年、掛金を払った・解約した場合を含む）", "kyosai") +
+  row("事業用の資産（車・機械・設備・工具など）を売却しましたか", "bizsale") +
+  row("従業員への給与・外注費の支払いがありますか（源泉徴収の要否）", "payroll") +
+  row("金融機関から事業用の借入をしていますか", "bizloan");
 
 // ---- 回答の集計 ----
 function getVal(name){ const el=document.querySelector(`input[name="${name}"]:checked`); return el?el.value:"無"; }
@@ -160,6 +167,7 @@ function go(n){
 
 function docsFor(){
   const d = [];
+  if(getVal("moved")==="有") d.push("住民票の写し（新住所・世帯全員の記載があるもの）、引越し日がわかる資料");
   if(getVal("salary")==="有") d.push("給与の源泉徴収票（1月中・勤務先から）");
   if(getVal("pension")==="有") d.push("公的年金の源泉徴収票（1月中・日本年金機構）");
   if(getVal("dividend")==="有") d.push("上場株式配当等支払通知書（1月中・証券会社）");
@@ -172,6 +180,8 @@ function docsFor(){
   if(getVal("dependent")==="有") d.push("扶養家族の住民票の写し（続柄・生年月日がわかるもの）、別居の場合は仕送りがわかる資料");
   if(getVal("misc")==="有") d.push("報酬の支払調書・雑所得の資料（1月中・支払者）");
   if(getVal("retire")==="有") d.push("退職金の源泉徴収票（退職時・勤務先）");
+  if(getVal("fx")==="有") d.push("外貨預金・FXの年間取引報告書・取引明細（為替差益・損益がわかるもの）");
+  if(getVal("annuity")==="有") d.push("個人年金保険の支払通知書・確定拠出年金の受取りの通知書（1月中・保険会社など）");
   if(getVal("lumpsum")==="有") d.push("満期返戻金・一時金の支払通知（支払時・保険会社）");
   if(getVal("realestatesale")==="有") d.push("売買契約書・登記事項証明書（引渡し時）");
   if(getVal("med")==="有") d.push("医療費通知（医療費のお知らせ・1〜2月）と領収書（写真又は郵送）");
@@ -184,6 +194,10 @@ function docsFor(){
     d.push("事業・不動産の売上資料（請求書・収支報告書など）");
     d.push("経費の領収書・クレジットカード明細");
     if(getVal("bigbuy")==="有") d.push("10万円以上の購入資料（購入日・金額・用途）");
+    if(getVal("payroll")==="有") d.push("給与台帳・源泉徴収簿、外注先の支払調書・請求書（源泉徴収の要否の確認用）");
+    if(getVal("bizloan")==="有") d.push("事業用借入の残高証明書・年間の返済予定表（金融機関から届くもの）");
+    if(getVal("bizsale")==="有") d.push("売却した資産の売買契約書・売却代金の入金明細、取得時の購入資料（減価償却の計算用）");
+    if(getVal("kyosai")==="有") d.push("倒産防止共済の掛金払込証明書（掛金の額）、解約した場合は解約返戻金の通知（共済団体）");
   }
   if(d.length===0) d.push("本人確認のみ（追加の資料はありません）");
   return d;
@@ -200,6 +214,7 @@ function collect(){
   const o={};
   document.querySelectorAll("input[type=radio]:checked").forEach(r=>o[r.name]=r.value);
   document.querySelectorAll("input[type=number]").forEach(i=>o[i.id]=i.value);
+  o.newaddr=document.getElementById("newaddr").value;
   o.contact=document.getElementById("contact").value;
   o.tel=document.getElementById("tel").value;
   return o;
