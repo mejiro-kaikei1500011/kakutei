@@ -79,21 +79,16 @@
       </ul>
       <div class="note">郵送の場合も、資料の原本はお送りいただかず、コピーで結構です。資料は手元に保管してください。</div>
     </div>
-    <div class="card" id="docs"></div>
+    <div class="card">
+      <div id="docs"></div>
       <div class="note">医療費通知は1〜2月に届きます。届き次第送ってください。</div>
     </div>
-    <h2>ご連絡先</h2>
-    <div class="card">
-      <div class="q">お名前（会社名）</div>
-      <input type="text" id="cname" placeholder="例 山田太郎／株式会社○○">
-      <div class="q">希望の連絡方法</div>
-      <select id="contact"><option>メール</option><option>電話</option><option>LINE</option></select>
-      <div class="q">連絡先の電話番号</div>
-      <input type="text" id="tel" placeholder="例 090-0000-0000">
-      <div class="q">回答にない項目・不明点・ご質問</div>
-      <textarea id="memo" rows="5" placeholder="この画面になかった項目、わからないこと、ご質問などを自由にご記入ください。"></textarea>
-      <div class="note">不明点やご質問があれば、ご連絡ください。</div>
-    </div>
+    <button onclick="go('fin')">次へ</button>
+    <button class="sub" onclick="go('ded')">戻る</button>
+  </div>
+
+  <!-- STEP 5 ご案内・ご連絡先・回答コード -->
+  <div class="step" id="s5">
     <h2>ご案内・スケジュール</h2>
     <div class="card">
       <div class="q">回答・資料の期限</div>
@@ -116,6 +111,18 @@
       <div class="q">振替日（振替納税の届出済みの方）</div>
       <div class="note">令和9年4月下旬（予定）。国税庁の発表で確定後に改めてご案内します。</div>
     </div>
+    <h2>ご連絡先</h2>
+    <div class="card">
+      <div class="q">お名前（会社名）</div>
+      <input type="text" id="cname" placeholder="例 山田太郎／株式会社○○">
+      <div class="q">希望の連絡方法</div>
+      <select id="contact"><option>メール</option><option>電話</option><option>LINE</option></select>
+      <div class="q">連絡先の電話番号</div>
+      <input type="text" id="tel" placeholder="例 090-0000-0000">
+      <div class="q">回答にない項目・不明点・ご質問</div>
+      <textarea id="memo" rows="5" placeholder="この画面になかった項目、わからないこと、ご質問などを自由にご記入ください。"></textarea>
+      <div class="note">不明点やご質問があれば、ご連絡ください。</div>
+    </div>
     <h2>回答コード</h2>
     <div class="card">
       <div class="code" id="ans"></div>
@@ -123,7 +130,7 @@
       <button onclick="mail()">メールを作成（mejiro.accounting@focas.work）</button>
       <div class="note" style="margin-top:8px">個人番号（マイナンバー）は送らないでください。</div>
     </div>
-    <button class="sub" onclick="go('ded')">戻る</button>
+    <button class="sub" onclick="show('s4')">戻る</button>
   </div>
 </div>
 
@@ -229,6 +236,7 @@ function go(n){
   if(n===1) return show("s1");
   if(n==="ded") return show("s2");
   if(n==="res"){ make(); return show("s4"); }
+  if(n==="fin") return show("s5");
 }
 
 function docsFor(){
