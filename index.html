@@ -39,30 +39,57 @@
     <div class="card" id="chg"></div>
     <h2>2. 今年（令和8年）の収入</h2>
     <div class="card" id="inc"></div>
-    <button onclick="go(2)">次へ</button>
+    <button onclick="afterIncome()">次へ</button>
   </div>
 
   <!-- STEP 2 -->
   <div class="step" id="s2">
-    <h2>3. 控除</h2>
+    <h2>4. 控除</h2>
     <div class="card" id="ded"></div>
-    <button class="sub" onclick="go(1)">戻る</button>
-    <button onclick="go(3)">次へ</button>
+    <button class="sub" onclick="backFromDed()">戻る</button>
+    <button onclick="go('res')">次へ</button>
   </div>
 
   <!-- STEP 3 (事業・不動産のみ) -->
   <div class="step" id="s3">
-    <h2>4. 事業・不動産</h2>
+    <h2>3. 事業・不動産</h2>
     <div class="card" id="biz"></div>
-    <button class="sub" onclick="go(2)">戻る</button>
-    <button onclick="go(4)">次へ</button>
+    <button class="sub" onclick="go(1)">戻る</button>
+    <button onclick="go('ded')">次へ</button>
   </div>
 
   <!-- STEP 4 結果 -->
   <div class="step" id="s4">
-    <h2>5. 写真を送る資料一覧</h2>
+    <h2>5. 送っていただく資料一覧</h2>
+    <div class="card">
+      <div class="q">資料の送り方（どちらでも結構です）</div>
+      <ul>
+        <li><b>メール：</b>写真（画像）またはPDFを添付し、件名に回答コードを入れて mejiro.accounting@focas.work へ送ってください。</li>
+        <li><b>郵送：</b>資料のコピーを〒150-0011 東京都渋谷区東2-23-8 渋谷MMIビル3B（MEJIRO会計事務所）宛にお送りください。</li>
+      </ul>
+      <div class="note">郵送の場合も、資料の原本はお送りいただかず、コピーで結構です。資料は手元に保管してください。</div>
+    </div>
     <div class="card"><ul id="docs"></ul>
       <div class="note">医療費通知は1〜2月に届きます。届き次第送ってください。</div>
+    </div>
+    <h2>ご案内・スケジュール</h2>
+    <div class="card">
+      <div class="q">回答・資料の期限</div>
+      <ul>
+        <li>医療費以外の資料：1月末</li>
+        <li>医療費通知を含む資料：2月中旬（医療費通知は1〜2月に届きます）</li>
+        <li>消費税をお支払いの方は、期限が異なります（令和9年1月4日〜3月31日）</li>
+      </ul>
+      <div class="q">今後の予定（令和8年分）</div>
+      <ul>
+        <li>2月16日：資料の回収</li>
+        <li>2月26日：確定申告書の作成（不明点があればご連絡します）</li>
+        <li>3月2日：納付書の送付</li>
+        <li>3月15日：申告書の提出・納税期限（所得税）</li>
+        <li>3月30日以降：申告書の製本送付</li>
+      </ul>
+      <div class="q">振替日（振替納税の届出済みの方）</div>
+      <div class="note">令和9年4月下旬（予定）。国税庁の発表で確定後に改めてご案内します。</div>
     </div>
     <h2>ご連絡先</h2>
     <div class="card">
@@ -76,9 +103,9 @@
       <div class="code" id="ans"></div>
       <div class="note">このコードをメールの件名に入れてください。</div>
       <button onclick="mail()">メールを作成（mejiro.accounting@focas.work）</button>
-      <div class="note" style="margin-top:8px">資料の写真には個人番号（マイナンバー）が写らないようにしてください。</div>
+      <div class="note" style="margin-top:8px">個人番号（マイナンバー）は送らないでください。</div>
     </div>
-    <button class="sub" onclick="go(3)">戻る</button>
+    <button class="sub" onclick="go('ded')">戻る</button>
   </div>
 </div>
 
@@ -118,7 +145,8 @@ document.getElementById("ded").innerHTML =
   `<div class="q">医療費を支払いましたか（支払いの有無のみ）</div>${YN("med")}
    <div class="note">支払いがあった場合は、医療費の領収書・医療費通知の写真又は郵送をお願いします。金額は事務所で確認します。</div>` +
   row("ふるさと納税をしましたか", "furusato") +
-  `<div class="q">ふるさと納税のワンストップ特例は使いましたか</div>${YN("onestop")}` +
+  `<div class="q">ふるさと納税のワンストップ特例は使いましたか</div>${YN("onestop")}
+   <div class="note">ワンストップ特例を使っていても、確定申告をする場合は特例が無効になり、ふるさと納税分も含めて全件を申告する必要があります。</div>` +
   row("生命保険・地震保険に入っていますか（年末調整で申告済みか）", "insurance") +
   row("国民年金・国民健康保険（自分で払った）", "kokuhoh") +
   row("iDeCo・小規模企業共済の掛金を払いましたか", "ideco") +
@@ -155,16 +183,18 @@ document.getElementById("biz").innerHTML =
 function getVal(name){ const el=document.querySelector(`input[name="${name}"]:checked`); return el?el.value:"無"; }
 function bizFlag(){ return getVal("biz")==="有" || getVal("realty")==="有" || getVal("startstop")==="有"; }
 
-function go(n){
+function show(id){
   document.querySelectorAll(".step").forEach(s=>s.classList.remove("on"));
-  if(n===2){ document.getElementById("s2").classList.add("on"); }
-  if(n===3){
-    if(bizFlag()){ document.getElementById("s3").classList.add("on"); }
-    else { make(); document.getElementById("s4").classList.add("on"); return; }
-    return;
-  }
-  if(n===4){ make(); document.getElementById("s4").classList.add("on"); return; }
-  document.getElementById("s"+n).classList.add("on");
+  document.getElementById(id).classList.add("on");
+}
+// ①②の次：事業・不動産に該当すれば③へ、なければ④控除へ
+function afterIncome(){ show(bizFlag() ? "s3" : "s2"); }
+// ④控除の戻る：該当者は③へ、それ以外は①へ
+function backFromDed(){ show(bizFlag() ? "s3" : "s1"); }
+function go(n){
+  if(n===1) return show("s1");
+  if(n==="ded") return show("s2");
+  if(n==="res"){ make(); return show("s4"); }
 }
 
 function docsFor(){
@@ -193,8 +223,11 @@ function docsFor(){
   if(getVal("ideco")==="有") d.push("iDeCo・小規模企業共済の払込証明書（10〜11月頃）");
   if(getVal("loan")==="有") d.push("住宅借入金等残高証明書（10月頃）" + (getVal("loan1")==="有" ? "・初年度は契約書類など" : ""));
   if(bizFlag()){
-    d.push("事業・不動産の売上資料（請求書・収支報告書など）");
-    d.push("経費の領収書・クレジットカード明細");
+    d.push("事業用の預金口座の通帳コピー（令和8年1月1日〜現在まで）。口座に入っていない売上があれば、相手先と金額がわかる資料");
+    d.push("売上の請求書・領収書の控え（事業）、収支報告書（不動産）");
+    d.push("事業の経費の請求書・領収書・クレジットカード明細");
+    if(getVal("family_pay")==="有") d.push("専従者（家族）への給与の資料（給与台帳・支払の明細）");
+    if(getVal("kanbun")==="有") d.push("家事按分の割合がわかる資料（自宅の面積・使用時間など）");
     if(getVal("bigbuy")==="有") d.push("10万円以上の購入資料（購入日・金額・用途）");
     if(getVal("payroll")==="有") d.push("給与台帳・源泉徴収簿、外注先の支払調書・請求書（源泉徴収の要否の確認用）");
     if(getVal("bizloan")==="有") d.push("事業用借入の残高証明書・年間の返済予定表（金融機関から届くもの）");
@@ -203,6 +236,8 @@ function docsFor(){
     if(getVal("bizsale")==="有") d.push("売却した資産の売買契約書・売却代金の入金明細、取得時の購入資料（減価償却の計算用）");
     if(getVal("kyosai")==="有") d.push("倒産防止共済の掛金払込証明書（掛金の額）、解約した場合は解約返戻金の通知（共済団体）");
   }
+  if(getVal("startstop")==="有") d.push("開業届・廃業届の控え（提出している場合）");
+  if(getVal("disab")==="有") d.push("障害者手帳の写し、または寡婦・ひとり親であることがわかる資料（該当する場合）");
   if(d.length===0) d.push("本人確認のみ（追加の資料はありません）");
   return d;
 }
