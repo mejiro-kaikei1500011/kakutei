@@ -97,6 +97,7 @@ document.getElementById("inc").innerHTML =
   row("公的年金", "pension") +
   row("株式の配当", "dividend") +
   row("株式・投資信託などの売却", "sell") +
+  row("ストックオプション・RSU（株式報酬）の行使・売却", "rsu") +
   row("雑所得（原稿料・副業・暗号資産など）", "misc") +
   row("土地・建物の売却", "realestatesale") +
   row("生命保険の満期金・一時金（小規模企業共済を含む）", "lumpsum") +
@@ -112,12 +113,18 @@ document.getElementById("ded").innerHTML =
   row("iDeCo・小規模企業共済の掛金を払いましたか", "ideco") +
   row("住宅ローンがありますか", "loan") +
   `<div class="q">住宅ローン：入居1年目ですか（2年目以降は年末調整で済みます）</div>${YN("loan1")}` +
-  row("障害者・ひとり親・寡婦に当てはまりますか", "disab");
+  row("障害者・ひとり親・寡婦に当てはまりますか", "disab") +
+  `<div class="q">配偶者はいますか</div>${YN("spouse")}
+   <div class="q">配偶者の年収の見込み（円・給与のみの場合）</div><input type="number" id="spouse_income" min="0" placeholder="例 1030000">
+   <div class="q">扶養している家族（子・親など）はいますか</div>${YN("dependent")}
+   <div class="q">扶養家族の人数</div><input type="number" id="dep_count" min="0">
+   <div class="q">うち19〜22歳の人数</div><input type="number" id="dep_teen" min="0">
+   <div class="q">うち70歳以上の人数</div><input type="number" id="dep_old" min="0">
+   <div class="q">うち別居の人数</div><input type="number" id="dep_apart" min="0">
+   <div class="note">扶養家族の氏名・生年月日・続柄は、後で住民票の写しで確認します。</div>`;
 
 document.getElementById("biz").innerHTML =
   `<div class="note">事業または不動産がある方だけ回答してください。</div>
-   <div class="q">帳簿の付け方</div>
-   <select id="book"><option>複式簿記（弥生会計など）</option><option>簡易簿記</option><option>現金主義・その他</option></select>
    <div class="q">10万円以上の物品（パソコン・車など）を買いましたか</div>${YN("bigbuy")}
    <div class="q">今年の売上（課税売上）の見込み（円）</div>
    <input type="number" id="sales" placeholder="例 12000000">
@@ -147,6 +154,9 @@ function docsFor(){
   if(getVal("pension")==="有") d.push("公的年金の源泉徴収票（1月中・日本年金機構）");
   if(getVal("dividend")==="有") d.push("上場株式配当等支払通知書（1月中・証券会社）");
   if(getVal("sell")==="有") d.push("特定口座年間取引報告書（1月中・証券会社）");
+  if(getVal("rsu")==="有") d.push("RSU・ストックオプションの権利行使・売却の報告書（証券会社・勤務先）");
+  if(getVal("spouse")==="有") d.push("配偶者の源泉徴収票（給与の場合・1月中）");
+  if(getVal("dependent")==="有") d.push("扶養家族の住民票の写し（続柄・生年月日がわかるもの）、別居の場合は仕送りがわかる資料");
   if(getVal("misc")==="有") d.push("報酬の支払調書・雑所得の資料（1月中・支払者）");
   if(getVal("retire")==="有") d.push("退職金の源泉徴収票（退職時・勤務先）");
   if(getVal("lumpsum")==="有") d.push("満期返戻金・一時金の支払通知（支払時・保険会社）");
@@ -176,8 +186,7 @@ function codeFor(){
 function collect(){
   const o={};
   document.querySelectorAll("input[type=radio]:checked").forEach(r=>o[r.name]=r.value);
-  o.book=document.getElementById("book").value;
-  o.sales=document.getElementById("sales").value;
+  document.querySelectorAll("input[type=number]").forEach(i=>o[i.id]=i.value);
   return o;
 }
 
