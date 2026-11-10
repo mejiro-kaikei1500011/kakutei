@@ -279,16 +279,45 @@ function make(){
   document.getElementById("ans").textContent = codeFor();
 }
 
+// 回答内容をメール本文用に読める形にする
+function labelOf(el){
+  const p = el.closest("label.opt") || el;
+  let s = p.previousElementSibling;
+  while(s && !s.classList.contains("q")) s = s.previousElementSibling;
+  return s ? s.textContent.trim() : (el.id || el.name);
+}
+function answersText(){
+  const out = [];
+  document.querySelectorAll("input[type=radio]:checked").forEach(r=>{
+    if(r.value==="有") out.push(labelOf(r));
+  });
+  document.querySelectorAll("input[type=number], input[type=text], select").forEach(i=>{
+    if(i.id==="cname" || i.id==="memo") return;
+    const v = i.value.trim();
+    if(v) out.push(labelOf(i) + "：" + v);
+  });
+  return out;
+}
+
 function mail(){
   const cname = document.getElementById("cname").value.trim();
   const memo = document.getElementById("memo").value.trim();
   const subject = encodeURIComponent("確定申告ヒアリング回答 " + cust + (cname ? " " + cname : "") + " " + codeFor());
-  const body = encodeURIComponent(
-    "顧客コード：" + cust + "\n" +
-    (cname ? "お名前（会社名）：" + cname + "\n" : "") +
-    "回答コード：" + codeFor() + "\n\n資料を添付します（写真・PDF）。\n" +
-    (memo ? "\n【不明点・ご質問】\n" + memo + "\n" : "")
-  );
+  const lines = [
+    "顧客コード：" + cust,
+    ...(cname ? ["お名前（会社名）：" + cname] : []),
+    "回答コード：" + codeFor(),
+    "",
+    "【回答内容】（「有」の項目と入力内容。「無」の項目は省略）",
+    ...answersText().map(s => "・" + s),
+    "",
+    "【必要資料一覧】",
+    ...docsFor().map((x, i) => (i + 1) + ". " + x),
+    "",
+    "資料を添付します（写真・PDF）。",
+  ];
+  if(memo) lines.push("", "【不明点・ご質問】", memo);
+  const body = encodeURIComponent(lines.join("\n"));
   location.href = `mailto:mejiro.accounting@focas.work?subject=${subject}&body=${body}`;
 }
 </script>
