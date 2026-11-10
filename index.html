@@ -93,6 +93,8 @@
     </div>
     <h2>ご連絡先</h2>
     <div class="card">
+      <div class="q">お名前（会社名）</div>
+      <input type="text" id="cname" placeholder="例 山田太郎／株式会社○○">
       <div class="q">希望の連絡方法</div>
       <select id="contact"><option>メール</option><option>電話</option><option>LINE</option></select>
       <div class="q">連絡先の電話番号</div>
@@ -152,8 +154,11 @@ document.getElementById("ded").innerHTML =
   `<div class="q">ふるさと納税のワンストップ特例は使いましたか</div>${YN("onestop")}
    <div class="note">ワンストップ特例を使っていても、確定申告をする場合は特例が無効になり、ふるさと納税分も含めて全件を申告する必要があります。</div>` +
   row("生命保険・地震保険に入っていますか（年末調整で申告済みか）", "insurance") +
+  `<div class="q">生命保険料・地震保険料の年間支払額（円）</div><input type="number" id="insurance_amt" min="0" placeholder="例 120000">` +
   row("国民年金・国民健康保険（自分で払った）", "kokuhoh") +
+  `<div class="q">国民年金・国民健康保険の年間支払額（円）</div><input type="number" id="kokuhoh_amt" min="0" placeholder="例 200000">` +
   row("iDeCo・小規模企業共済の掛金を払いましたか", "ideco") +
+  `<div class="q">iDeCo・小規模企業共済の掛金の年間合計（円）</div><input type="number" id="ideco_amt" min="0" placeholder="例 240000">` +
   row("住宅ローンがありますか", "loan") +
   `<div class="q">住宅ローン：入居1年目ですか（2年目以降は年末調整で済みます）</div>${YN("loan1")}` +
   row("障害者・ひとり親・寡婦に当てはまりますか", "disab") +
@@ -177,6 +182,7 @@ document.getElementById("biz").innerHTML =
    <div class="q">家族に給与を払っていますか（専従者）</div>${YN("family_pay")}
    <div class="q">自宅を事業にも使っていますか（家事按分）</div>${YN("kanbun")}` +
   row("倒産防止共済（経営セーフティ共済）に加入していますか（今年、掛金を払った・解約した場合を含む）", "kyosai") +
+  `<div class="q">倒産防止共済の掛金の年間合計（円）</div><input type="number" id="kyosai_amt" min="0" placeholder="例 240000">` +
   row("事業用の資産（車・機械・設備・工具など）を売却しましたか", "bizsale") +
   row("従業員への給与・外注費の支払いがありますか（源泉徴収の要否）", "payroll") +
   row("金融機関から事業用の借入をしていますか", "bizloan") +
@@ -264,6 +270,7 @@ function collect(){
   o.contact=document.getElementById("contact").value;
   o.tel=document.getElementById("tel").value;
   o.memo=document.getElementById("memo").value;
+  o.cname=document.getElementById("cname").value;
   return o;
 }
 
@@ -273,9 +280,15 @@ function make(){
 }
 
 function mail(){
-  const subject = encodeURIComponent("確定申告ヒアリング回答 " + cust + " " + codeFor());
+  const cname = document.getElementById("cname").value.trim();
   const memo = document.getElementById("memo").value.trim();
-  const body = encodeURIComponent("回答コード：" + codeFor() + "\n\n資料を添付します（写真・PDF）。\n" + (memo ? "\n【不明点・ご質問】\n" + memo + "\n" : ""));
+  const subject = encodeURIComponent("確定申告ヒアリング回答 " + cust + (cname ? " " + cname : "") + " " + codeFor());
+  const body = encodeURIComponent(
+    "顧客コード：" + cust + "\n" +
+    (cname ? "お名前（会社名）：" + cname + "\n" : "") +
+    "回答コード：" + codeFor() + "\n\n資料を添付します（写真・PDF）。\n" +
+    (memo ? "\n【不明点・ご質問】\n" + memo + "\n" : "")
+  );
   location.href = `mailto:mejiro.accounting@focas.work?subject=${subject}&body=${body}`;
 }
 </script>
