@@ -147,7 +147,9 @@ document.getElementById("biz").innerHTML =
   row("倒産防止共済（経営セーフティ共済）に加入していますか（今年、掛金を払った・解約した場合を含む）", "kyosai") +
   row("事業用の資産（車・機械・設備・工具など）を売却しましたか", "bizsale") +
   row("従業員への給与・外注費の支払いがありますか（源泉徴収の要否）", "payroll") +
-  row("金融機関から事業用の借入をしていますか", "bizloan");
+  row("金融機関から事業用の借入をしていますか", "bizloan") +
+  row("事業用の車両（自動車）を購入しましたか", "carbuy") +
+  row("事業用の車両をリース（またはカーリース）していますか", "carlease");
 
 // ---- 回答の集計 ----
 function getVal(name){ const el=document.querySelector(`input[name="${name}"]:checked`); return el?el.value:"無"; }
@@ -196,6 +198,8 @@ function docsFor(){
     if(getVal("bigbuy")==="有") d.push("10万円以上の購入資料（購入日・金額・用途）");
     if(getVal("payroll")==="有") d.push("給与台帳・源泉徴収簿、外注先の支払調書・請求書（源泉徴収の要否の確認用）");
     if(getVal("bizloan")==="有") d.push("事業用借入の残高証明書・年間の返済予定表（金融機関から届くもの）");
+    if(getVal("carbuy")==="有") d.push("事業用車両の売買契約書・車検証のコピー（購入日・金額・用途がわかるもの）");
+    if(getVal("carlease")==="有") d.push("カーリースの契約書・年間のリース料の明細（支払額がわかるもの）");
     if(getVal("bizsale")==="有") d.push("売却した資産の売買契約書・売却代金の入金明細、取得時の購入資料（減価償却の計算用）");
     if(getVal("kyosai")==="有") d.push("倒産防止共済の掛金払込証明書（掛金の額）、解約した場合は解約返戻金の通知（共済団体）");
   }
